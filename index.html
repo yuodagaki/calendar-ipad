@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>CASIO DASHBOARD</title>
+<style>
+@font-face {
+  font-family: 'DSEG7';
+  src: url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Regular.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Regular.woff') format('woff');
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { width:100%; height:100%; overflow:hidden; background:#0a0a08; }
+body {
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:center; justify-content:center;
+  font-family:'Share Tech Mono','Courier New',monospace;
+}
+
+/* ── WATCH SHELL ─────────────────────────────── */
+.watch {
+  width:97vw; height:93vh;
+  border-width:2px; border-style:solid; border-radius:8px;
+  position:relative;
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  overflow:hidden;
+}
+.scanlines {
+  position:absolute; inset:0; pointer-events:none; z-index:10;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 1px,
+    transparent 1px, transparent 3px
+  );
+}
+.watch-inner {
+  position:absolute; inset:6px;
+  border-width:1px; border-style:solid; border-radius:5px;
+  pointer-events:none; z-index:11;
+}
+
+/* ── HEADER ──────────────────────────────────── */
+.header {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:row; flex-direction:row;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:space-between; justify-content:space-between;
+  padding:0.9vh 2.2vw 0.7vh;
+  border-bottom-width:1px; border-bottom-style:solid;
+  position:relative; z-index:2; -webkit-flex-shrink:0; flex-shrink:0;
+}
+.h-label { font-size:0.85vw; letter-spacing:0.24em; text-transform:uppercase; }
+.h-sec { font-size:0.85vw; letter-spacing:0.2em; }
+.modes { display:-webkit-flex; display:flex; gap:0.5vw; }
+.mode-btn {
+  font-family:'Share Tech Mono','Courier New',monospace;
+  font-size:0.75vw; letter-spacing:0.15em; cursor:pointer;
+  background:none; border-width:1px; border-style:solid;
+  padding:0.2vh 0.55vw; border-radius:2px;
+  -webkit-user-select:none; user-select:none;
+}
+
+/* ── TIME BLOCK ──────────────────────────────── */
+.time-block {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:center; justify-content:center;
+  -webkit-flex:1.25; flex:1.25; -webkit-flex-shrink:0; flex-shrink:0;
+  border-bottom-width:1px; border-bottom-style:solid;
+  position:relative; z-index:2;
+}
+.lcd-wrap { position:relative; display:inline-block; line-height:1; }
+.lcd-ghost {
+  font-family:'DSEG7','Courier New',monospace;
+  font-size:19vw; letter-spacing:0.04em;
+  position:absolute; top:0; left:0; pointer-events:none;
+}
+.lcd-real {
+  font-family:'DSEG7','Courier New',monospace;
+  font-size:19vw; letter-spacing:0.04em; position:relative;
+}
+.sep-blink { -webkit-animation:blink 1s step-end infinite; animation:blink 1s step-end infinite; }
+@-webkit-keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.06} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.06} }
+.date-row { display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:2.5vw; margin-top:2.5vh; }
+.date-chip { font-size:2.2vw; letter-spacing:0.2em; text-transform:uppercase; }
+
+/* ── THREE COLUMNS ───────────────────────────── */
+.bottom {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:row; flex-direction:row;
+  -webkit-flex:1; flex:1; position:relative; z-index:2; min-height:0;
+}
+.panel {
+  -webkit-flex:1; flex:1;
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  padding:1vh 1.4vw; overflow:hidden;
+}
+.panel-border-r { border-right-width:1px; border-right-style:solid; }
+.panel-label {
+  font-size:0.75vw; letter-spacing:0.3em; text-transform:uppercase;
+  margin-bottom:0.7vh;
+  border-bottom-width:1px; border-bottom-style:solid;
+  padding-bottom:0.4vh; -webkit-flex-shrink:0; flex-shrink:0;
+}
+
+/* ── WEATHER ─────────────────────────────────── */
+.temp-wrap { position:relative; display:inline-block; line-height:1; }
+.temp-ghost {
+  font-family:'DSEG7','Courier New',monospace;
+  font-size:7.5vw; letter-spacing:0.04em;
+  position:absolute; top:0; left:0;
+}
+.temp-real {
+  font-family:'DSEG7','Courier New',monospace;
+  font-size:7.5vw; letter-spacing:0.04em; position:relative;
+}
+.temp-real sup { font-size:2.2vw; vertical-align:super; opacity:0.75; font-family:'Share Tech Mono','Courier New',monospace; }
+.w-desc { margin-top:0.7vh; font-size:0.85vw; letter-spacing:0.12em; text-transform:uppercase; }
+.w-meta { margin-top:0.5vh; font-size:0.85vw; line-height:2.0; }
+
+/* ── CALENDAR ────────────────────────────────── */
+#cal-section {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  -webkit-flex:1; flex:1; min-height:0; overflow:hidden;
+}
+.cal-nav-row {
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:space-between; justify-content:space-between;
+  margin-bottom:0.5vh; -webkit-flex-shrink:0; flex-shrink:0;
+}
+.cal-title { font-size:0.9vw; letter-spacing:0.12em; }
+.cal-nav-btn {
+  font-family:'Share Tech Mono','Courier New',monospace;
+  background:none; border:none; cursor:pointer;
+  font-size:0.8vw; padding:0 0.4vw;
+}
+.cal-grid {
+  display:grid; grid-template-columns:repeat(7, 1fr);
+  gap:0.25vh 0.1vw;
+  -webkit-flex:1; flex:1; min-height:0;
+  -webkit-align-content:start; align-content:start;
+}
+.cal-dow {
+  font-size:0.7vw; letter-spacing:0.08em; text-align:center;
+  padding-bottom:0.4vh;
+  border-bottom-width:1px; border-bottom-style:solid;
+  -webkit-flex-shrink:0; flex-shrink:0;
+}
+.cal-day {
+  font-size:0.85vw; text-align:center;
+  padding:0.2vh 0; border-radius:2px;
+  line-height:1.3;
+  border:1px solid transparent;
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:center; justify-content:center;
+  cursor:default;
+}
+.cal-day.other-month { opacity:0.2; }
+.cal-day.today { border-width:1px; border-style:solid; }
+.cal-hday-name {
+  font-size:0.4vw; letter-spacing:0; line-height:1;
+  max-width:100%; overflow:hidden; white-space:nowrap;
+  margin-top:0.1vh;
+  text-overflow:ellipsis;
+}
+.cal-hday-dot {
+  width:0.3vw; height:0.3vw; border-radius:50%;
+  margin-top:0.1vh; -webkit-flex-shrink:0; flex-shrink:0;
+}
+
+/* ── AGENDA ──────────────────────────────────── */
+.ev-list {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  gap:0.4vh; overflow:hidden; -webkit-flex:1; flex:1;
+}
+.ev {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  gap:0.15vh; padding:0.35vh 0.5vw;
+  border-width:1px; border-style:solid;
+  -webkit-flex-shrink:0; flex-shrink:0;
+}
+.ev-meta {
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:row; flex-direction:row;
+  -webkit-align-items:center; align-items:center;
+  gap:0.5vw;
+}
+.ev-date { font-size:0.75vw; -webkit-flex-shrink:0; flex-shrink:0; min-width:3.8vw; letter-spacing:0.06em; }
+.ev-time { font-size:0.75vw; -webkit-flex-shrink:0; flex-shrink:0; letter-spacing:0.04em; }
+.ev-cal { font-size:0.7vw; letter-spacing:0.06em; margin-left:auto; -webkit-flex-shrink:0; flex-shrink:0; }
+.ev-title { font-size:0.9vw; letter-spacing:0.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.msg { font-size:0.9vw; letter-spacing:0.1em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div class="watch" id="watch">
+  <div class="scanlines"></div>
+  <div class="watch-inner" id="watch-inner"></div>
+
+  <!-- HEADER -->
+  <div class="header" id="header">
+    <span class="h-label">&#9679; CASIO &nbsp;&#183;&nbsp; WORLD TIME</span>
+    <span class="h-sec" id="seconds">--</span>
+    <div class="modes">
+      <button class="mode-btn" id="btn-green" onclick="setTheme('green')">GRN</button>
+      <button class="mode-btn" id="btn-blue"  onclick="setTheme('blue')">BLU</button>
+      <button class="mode-btn" id="btn-mono"  onclick="setTheme('mono')">B&amp;W</button>
+    </div>
+  </div>
+
+  <!-- TIME -->
+  <div class="time-block" id="time-block">
+    <div class="lcd-wrap">
+      <div class="lcd-ghost" id="clock-ghost">88<span>:</span>88</div>
+      <div class="lcd-real"  id="clock-real" >00<span class="sep-blink">:</span>00</div>
+    </div>
+    <div class="date-row">
+      <div class="date-chip" id="date-day">---</div>
+      <div class="date-chip" id="date-full">--</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: 3 columns -->
+  <div class="bottom">
+
+    <!-- WEATHER -->
+    <div class="panel panel-border-r" id="panel-left">
+      <div class="panel-label" id="lbl-weather">&#9650; WEATHER</div>
+      <div id="weather-section"><div class="msg" id="w-msg">LOADING_</div></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="panel panel-border-r" id="panel-cal">
+      <div class="panel-label" id="lbl-cal">&#9632; CALENDAR</div>
+      <div id="cal-section"></div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="panel" id="panel-right">
+      <div class="panel-label" id="lbl-agenda">&#9632; SCHEDULE &mdash; NEXT 7 DAYS</div>
+      <div class="ev-list" id="agenda-list"><div class="msg">LOADING_</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── CONFIG ──────────────────────────────────── */
+var LAT = 35.6762, LON = 139.6503; // Tokyo — 変更可能
+
+var DOW_JP   = ['日','月','火','水','木','金','土'];
+var DOW_S    = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+var MONTHS   = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+var WMO = {
+  0:'CLEAR',1:'MOSTLY CLR',2:'PART CLOUD',3:'OVERCAST',
+  45:'FOG',48:'FREEZE FOG',51:'DRIZZLE',53:'DRIZZLE+',55:'DRIZZLE++',
+  61:'RAIN',63:'RAIN+',65:'RAIN++',71:'SNOW',73:'SNOW+',75:'SNOW++',
+  80:'SHOWERS',81:'SHOWERS+',82:'SHOWERS++',85:'SNOWSHOWERS',
+  95:'THUNDER',96:'HAILSTORM',99:'HAILSTORM+'
+};
+
+/* ── THEMES ──────────────────────────────────── */
+var T = {
+  green: {
+    body:'#0A0A08', bg:'#131E0C', on:'#B8D870', off:'#1D2D0F',
+    dim:'#496124', bdr:'#385020', lbl:'#506D2E', glow:'rgba(168,210,80,0.38)',
+    sun:'#E06060', sat:'#5080D0'
+  },
+  blue: {
+    body:'#050810', bg:'#09101F', on:'#6EB6FF', off:'#0D1D31',
+    dim:'#1E3E5E', bdr:'#183D6E', lbl:'#285078', glow:'rgba(80,160,255,0.38)',
+    sun:'#FF8888', sat:'#90C8FF'
+  },
+  mono: {
+    body:'#040404', bg:'#0E0E0E', on:'#DCDCDC', off:'#1A1A1A',
+    dim:'#484848', bdr:'#303030', lbl:'#424242', glow:'rgba(200,200,200,0.22)',
+    sun:'#FF8888', sat:'#8888AA'
+  }
+};
+
+var _t = 'green', _c = T.green;
+var _calY = new Date().getFullYear(), _calM = new Date().getMonth();
+
+/* ── APPLY THEME ─────────────────────────────── */
+function applyTheme(name) {
+  _t = name; _c = T[name];
+  var c = _c;
+
+  document.body.style.backgroundColor = c.body;
+
+  var w = document.getElementById('watch');
+  w.style.backgroundColor = c.bg;
+  w.style.borderColor = c.bdr;
+
+  document.getElementById('watch-inner').style.borderColor = c.off;
+
+  var hdr = document.getElementById('header');
+  hdr.style.borderBottomColor = c.off;
+  hdr.style.color = c.lbl;
+  document.getElementById('seconds').style.color = c.lbl;
+
+  ['green','blue','mono'].forEach(function(n) {
+    var b = document.getElementById('btn-'+n);
+    if (!b) return;
+    b.style.color       = n === name ? c.on  : c.dim;
+    b.style.borderColor = n === name ? c.dim : c.off;
+  });
+
+  document.getElementById('time-block').style.borderBottomColor = c.off;
+  document.getElementById('clock-ghost').style.color = c.off;
+
+  var cr = document.getElementById('clock-real');
+  cr.style.color       = c.on;
+  cr.style.textShadow  = '0 0 18px '+c.glow+',0 0 45px '+c.glow;
+
+  document.getElementById('date-day').style.color  = c.dim;
+  document.getElementById('date-full').style.color = c.on;
+
+  document.getElementById('panel-left').style.borderRightColor = c.off;
+  document.getElementById('panel-cal').style.borderRightColor  = c.off;
+
+  ['lbl-weather','lbl-cal','lbl-agenda'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.color            = c.lbl;
+    el.style.borderBottomColor = c.off;
+  });
+
+  applyWeatherColors();
+  renderCalendar();
+  applyAgendaColors();
+
+  try { localStorage.setItem('casio-theme', name); } catch(e){}
+}
+function setTheme(n) { applyTheme(n); }
+
+/* ── CLOCK ───────────────────────────────────── */
+function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+function updateClock() {
+  var now = new Date(), c = _c;
+  document.getElementById('clock-real').innerHTML =
+    pad(now.getHours())+'<span class="sep-blink">:</span>'+pad(now.getMinutes());
+  document.getElementById('clock-ghost').innerHTML = '88<span>:</span>88';
+  document.getElementById('seconds').textContent = pad(now.getSeconds());
+
+  var dow  = DOW_JP[now.getDay()]+'曜日';
+  var date = now.getFullYear()+'.'
+           + pad(now.getMonth()+1)+'.'
+           + pad(now.getDate());
+
+  document.getElementById('date-day').textContent  = dow;
+  document.getElementById('date-full').textContent = date;
+  document.getElementById('date-day').style.color   = c.dim;
+  document.getElementById('date-full').style.color  = c.on;
+  document.getElementById('clock-ghost').style.color = c.off;
+  var cr = document.getElementById('clock-real');
+  cr.style.color      = c.on;
+  cr.style.textShadow = '0 0 18px '+c.glow+',0 0 45px '+c.glow;
+  document.getElementById('seconds').style.color = c.lbl;
+}
+
+/* ── WEATHER ─────────────────────────────────── */
+function fetchWeather() {
+  var url = 'https://api.open-meteo.com/v1/forecast'
+    + '?latitude='+LAT+'&longitude='+LON
+    + '&current_weather=true'
+    + '&hourly=apparent_temperature,relativehumidity_2m'
+    + '&timezone=Asia%2FTokyo&forecast_days=1';
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    var el = document.getElementById('weather-section');
+    var c = _c;
+    if (xhr.status === 200) {
+      try {
+        var d  = JSON.parse(xhr.responseText);
+        var cw = d.current_weather;
+        var h  = new Date().getHours();
+        var temp = Math.round(cw.temperature);
+        var sens = d.hourly && d.hourly.apparent_temperature
+          ? Math.round(d.hourly.apparent_temperature[h]) : temp;
+        var hum  = d.hourly && d.hourly.relativehumidity_2m
+          ? d.hourly.relativehumidity_2m[h] : '--';
+        var wind = Math.round(cw.windspeed);
+
+        el.innerHTML =
+          '<div class="temp-wrap">'
+          + '<div class="temp-ghost" style="color:'+c.off+'">88!</div>'
+          + '<div class="temp-real" style="color:'+c.on+';text-shadow:0 0 14px '+c.glow+'">'
+          +   temp+'<sup>&deg;C</sup>'
+          + '</div>'
+          + '</div>'
+          + '<div class="w-desc" style="color:'+c.dim+'">'+(WMO[cw.weathercode]||'--')+'</div>'
+          + '<div class="w-meta" style="color:'+c.lbl+'">'
+          +   'FEEL <b style="color:'+c.on+'">'+sens+'&deg;</b>'
+          +   ' &nbsp; HUM <b style="color:'+c.on+'">'+hum+'%</b><br>'
+          +   'WIND <b style="color:'+c.on+'">'+wind+' KM/H</b>'
+          + '</div>';
+      } catch(e) {
+        el.innerHTML = '<div class="msg" style="color:'+c.dim+'">PARSE ERR_</div>';
+      }
+    } else {
+      el.innerHTML = '<div class="msg" style="color:'+c.dim+'">NO DATA_</div>';
+    }
+  };
+  xhr.send();
+}
+
+function applyWeatherColors() {
+  var c = _c;
+  var tg = document.querySelector('.temp-ghost');
+  var tr = document.querySelector('.temp-real');
+  var wd = document.querySelector('.w-desc');
+  var wm = document.querySelector('.w-meta');
+  if (tg) tg.style.color = c.off;
+  if (tr) { tr.style.color = c.on; tr.style.textShadow = '0 0 14px '+c.glow; }
+  if (wd) wd.style.color = c.dim;
+  if (wm) { wm.style.color = c.lbl;
+    var bs = wm.getElementsByTagName('b');
+    for (var i=0;i<bs.length;i++) bs[i].style.color = c.on;
+  }
+  var msg = document.getElementById('w-msg');
+  if (msg) msg.style.color = c.dim;
+}
+
+/* ── HOLIDAYS (内閣府データ) ──────────────────── */
+var _holidays = {}; // { "YYYY-MM-DD": "祝日名" }
+
+function hdayKey(y, m, d) {
+  return y+'-'+pad(m+1)+'-'+pad(d);
+}
+
+function fetchHolidays() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://holidays-jp.github.io/api/v1/date.json', true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 200) {
+      try {
+        _holidays = JSON.parse(xhr.responseText);
+        renderCalendar();
+        renderAgenda();
+      } catch(e) {}
+    }
+  };
+  xhr.send();
+}
+
+/* ── CALENDAR ────────────────────────────────── */
+function renderCalendar() {
+  var c = _c;
+  var today = new Date();
+  var tY = today.getFullYear(), tM = today.getMonth(), tD = today.getDate();
+
+  var first    = new Date(_calY, _calM, 1);
+  var lastDay  = new Date(_calY, _calM+1, 0).getDate();
+  var startDow = first.getDay();
+
+  var titleText = _calY + '年 ' + MONTHS[_calM];
+
+  var html =
+    '<div class="cal-nav-row">'
+    + '<button class="cal-nav-btn" id="cal-prev" onclick="calNav(-1)" style="color:'+c.dim+'">&#9664;</button>'
+    + '<span class="cal-title" id="cal-title" style="color:'+c.on+'">'+titleText+'</span>'
+    + '<button class="cal-nav-btn" id="cal-next" onclick="calNav(1)"  style="color:'+c.dim+'">&#9654;</button>'
+    + '</div>'
+    + '<div class="cal-grid">';
+
+  // DOW headers
+  for (var i=0; i<7; i++) {
+    var dc = i===0 ? c.sun : (i===6 ? c.sat : c.dim);
+    html += '<div class="cal-dow" style="color:'+dc+';border-bottom-color:'+c.off+'">'+DOW_JP[i]+'</div>';
+  }
+
+  // Empty cells
+  for (var i=0; i<startDow; i++) {
+    html += '<div class="cal-day"></div>';
+  }
+
+  // Days
+  for (var d=1; d<=lastDay; d++) {
+    var dow    = (startDow + d - 1) % 7;
+    var key    = hdayKey(_calY, _calM, d);
+    var hname  = _holidays[key] || null;
+    var isHday = !!hname;
+    var isToday = (_calY===tY && _calM===tM && d===tD);
+
+    // 祝日・日曜→赤、土曜→青、平日→on
+    var fc = (isHday || dow===0) ? c.sun : (dow===6 ? c.sat : c.on);
+
+    var extraStyle = isToday
+      ? 'border-color:'+c.on+';background:'+c.off+';'
+      : '';
+
+    var titleAttr = hname ? ' title="'+esc(hname)+'"' : '';
+
+    // 祝日インジケーター（ドット）
+    var indicator = isHday
+      ? '<span class="cal-hday-dot" style="background:'+c.sun+'"></span>'
+      : '';
+
+    html += '<div class="cal-day'+(isToday?' today':'')+'"'
+      + ' style="color:'+fc+';'+extraStyle+'"'
+      + titleAttr+'>'
+      + '<span>'+d+'</span>'
+      + indicator
+      + '</div>';
+  }
+
+  html += '</div>'; // .cal-grid
+
+  document.getElementById('cal-section').innerHTML = html;
+}
+
+function calNav(dir) {
+  _calM += dir;
+  if (_calM < 0)  { _calM = 11; _calY--; }
+  if (_calM > 11) { _calM = 0;  _calY++; }
+  renderCalendar();
+}
+
+/* ── AGENDA ──────────────────────────────────── */
+function renderAgenda() {
+  var c = _c;
+  var today = new Date();
+  var html = '';
+
+  for (var i=0; i<7; i++) {
+    var d = new Date(today);
+    d.setDate(d.getDate() + i);
+    var dow     = DOW_JP[d.getDay()]+'曜';
+    var dateStr = (d.getMonth()+1)+'/'+d.getDate();
+    var key     = hdayKey(d.getFullYear(), d.getMonth(), d.getDate());
+    var hname   = _holidays[key] || null;
+    var isToday = (i===0);
+    var isHday  = !!hname;
+
+    var label  = isToday ? '今日' : dow;
+    var dc     = (isToday || isHday) ? c.sun : c.dim;
+    var title  = hname
+      ? '<div class="ev-title" style="color:'+c.sun+'">'+esc(hname)+'</div>'
+      : '<div class="ev-title" style="color:'+c.dim+'">NO EVENTS_</div>';
+
+    html += '<div class="ev" style="border-color:'+(isHday ? c.sun : c.off)+'">'
+      + '<div class="ev-meta">'
+      + '<span class="ev-date" style="color:'+dc+'">'+label+'</span>'
+      + '<span class="ev-time" style="color:'+c.lbl+'">'+dateStr+'</span>'
+      + '<span class="ev-cal" style="color:'+c.lbl+'">'+(isHday ? '祝' : '-')+'</span>'
+      + '</div>'
+      + title
+      + '</div>';
+  }
+
+  document.getElementById('agenda-list').innerHTML = html;
+}
+
+function fetchAgenda() {
+  var url = '/api/calendar';
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status !== 200) { renderAgenda(); return; }
+    try {
+      var data = JSON.parse(xhr.responseText);
+      var c = _c;
+      var todayISO = data.today || '';
+      if (!data.events || !data.events.length) { renderAgenda(); return; }
+      var html = '';
+      for (var i=0; i<data.events.length; i++) {
+        var ev = data.events[i];
+        var isT = ev.date === todayISO;
+        var dl  = isT ? '今日' : (ev.dayLabel+' '+ev.dateNum);
+        var ts  = ev.allDay ? 'ALL DAY' : (ev.start+(ev.end?' > '+ev.end:''));
+        var dc  = isT ? c.on : c.dim;
+        html += '<div class="ev" style="border-color:'+c.off+'">'
+          + '<div class="ev-meta">'
+          + '<span class="ev-date" style="color:'+dc+'">'+esc(dl)+'</span>'
+          + '<span class="ev-time" style="color:'+c.lbl+'">'+ts+'</span>'
+          + '<span class="ev-cal" style="color:'+c.lbl+'">'+esc((ev.calendar||'').toUpperCase())+'</span>'
+          + '</div>'
+          + '<div class="ev-title" style="color:'+c.on+'">'+esc(ev.title.toUpperCase())+'</div>'
+          + '</div>';
+      }
+      document.getElementById('agenda-list').innerHTML = html;
+    } catch(e) { renderAgenda(); }
+  };
+  xhr.send();
+}
+
+function applyAgendaColors() {
+  var c = _c;
+  var evs = document.getElementsByClassName('ev');
+  for (var i=0;i<evs.length;i++) evs[i].style.borderColor = c.off;
+  var dates = document.getElementsByClassName('ev-date');
+  for (var i=0;i<dates.length;i++) {
+    if (dates[i].style.color !== c.on) dates[i].style.color = c.dim;
+  }
+  var times = document.getElementsByClassName('ev-time');
+  for (var i=0;i<times.length;i++) times[i].style.color = c.lbl;
+  var cals = document.getElementsByClassName('ev-cal');
+  for (var i=0;i<cals.length;i++) cals[i].style.color = c.lbl;
+  var titles = document.getElementsByClassName('ev-title');
+  for (var i=0;i<titles.length;i++) {
+    if (titles[i].style.color !== c.dim) titles[i].style.color = c.on;
+  }
+  var msgs = document.getElementsByClassName('msg');
+  for (var i=0;i<msgs.length;i++) msgs[i].style.color = c.dim;
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── INIT ────────────────────────────────────── */
+var saved = 'green';
+try { saved = localStorage.getItem('casio-theme') || 'green'; } catch(e){}
+applyTheme(saved);
+updateClock();
+setInterval(updateClock, 1000);
+fetchWeather();
+setInterval(fetchWeather, 10*60*1000);
+fetchHolidays();
+setInterval(fetchHolidays, 24*60*60*1000); // 1日1回更新
+fetchAgenda();
+setInterval(fetchAgenda, 15*60*1000);
+document.addEventListener('touchstart', function(){}, false);
+</script>
+</body>
+</html>
