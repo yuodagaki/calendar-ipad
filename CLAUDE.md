@@ -1,4 +1,4 @@
-# CASIO DASHBOARD — CLAUDE.md
+# CALENDAR IPAD — CLAUDE.md
 
 ## プロジェクト概要
 

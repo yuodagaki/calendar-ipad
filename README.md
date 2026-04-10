@@ -1,10 +1,11 @@
-# CASIO DASHBOARD
+# CALENDAR IPAD
 
 CASIOの液晶時計をモチーフにしたiPad向けリアルタイムダッシュボード。
 時刻・天気・カレンダー・スケジュールを一画面に表示する単一HTMLファイルアプリ。
 
 ![Theme: Green](https://img.shields.io/badge/theme-green%20%7C%20blue%20%7C%20mono-brightgreen)
 ![No dependencies](https://img.shields.io/badge/dependencies-none-lightgrey)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 ## 機能
 
@@ -130,3 +131,7 @@ if ('wakeLock' in navigator) {
 - iPad Safari（iOS 14以降推奨）
 - デスクトップブラウザ（Chrome / Safari / Firefox）
 - サーバー不要（`/api/calendar` 連携を除く）
+
+## ライセンス
+
+[MIT](LICENSE) © 2026 Yu Odagaki
