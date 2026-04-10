@@ -117,6 +117,66 @@ if ('wakeLock' in navigator) {
 
 ---
 
+## デスクトップで使う
+
+### PWA としてインストール（Chrome / Edge）
+
+GitHub Pages で公開されている URL を Chrome または Edge で開き、アドレスバー右端の「インストール」アイコンをクリックします。ブラウザ UI なしの独立ウィンドウとして起動し、Dock やスタートメニューから直接開けるようになります。
+
+- Windows / Mac 両対応
+- オフライン時は表示されません（外部 API を使用するため）
+
+### Übersicht でデスクトップ常駐（Mac のみ）
+
+[Übersicht](https://tracesof.net/uebersicht/) を使うと、ダッシュボードをデスクトップの壁紙レイヤーに常駐させられます。
+
+**1. Übersicht をインストール**
+
+```bash
+brew install --cask ubersicht
+```
+
+または [公式サイト](https://tracesof.net/uebersicht/) からダウンロード。
+
+**2. ウィジェットファイルを配置**
+
+```bash
+mkdir -p ~/Library/Application\ Support/Übersicht/widgets/calendar-ipad.widget
+```
+
+以下の内容で `index.jsx` を作成します：
+
+```jsx
+export const refreshFrequency = false
+
+export const className = `
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  pointer-events: auto;
+`
+
+export const render = () => (
+  <iframe
+    src="https://yuodagaki.github.io/calendar-ipad/"
+    style={{
+      width: '100%',
+      height: '100%',
+      border: 'none',
+      display: 'block',
+    }}
+  />
+)
+```
+
+**3. Übersicht を起動**
+
+メニューバーに常駐し、ウィジェットが自動的に読み込まれます。ウィンドウをすべて最小化するとダッシュボードが見えます。
+
+---
+
 ## 外部リソース
 
 | リソース | 用途 |
